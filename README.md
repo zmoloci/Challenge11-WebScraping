@@ -197,18 +197,122 @@ table_df['month'].max()
 table_df['sol'].count()
 ```
 3. What are the coldest and the warmest months on Mars (at the location of Curiosity)?</br> To answer this question:
-- Find the average the minimum daily temperature for all of the months.
+- Find the average of the minimum daily temperature for all of the months.
 ```
 avg_min_temp_df = table_df.groupby(['month']).agg(mean_min_temp = ('min_temp','mean'))
 avg_min_temp_df
 ```
 OUTPUT:
+</br>
+![fig.1_mean_min_temp_by_month](https://github.com/zmoloci/Challenge11-WebScraping/blob/main/Figures/fig.1_mean_min_temp_by_month.png)
 
-- Plot the results as a bar chart.
-5. Which months have the lowest and the highest atmospheric pressure on Mars?</br> To answer this question:
+- Plot the results as a bar chart.</br>
+```
+ax = avg_min_temp_df.plot.bar(y='mean_min_temp')
+ax.set_ylabel('mean min_temp')
+ax.set_title('Mean Mars Minimum Temp by Month')
+```
+OUTPUT:
+</br>
+![fig.2_mean_min_temp_by_month_plot](https://github.com/zmoloci/Challenge11-WebScraping/blob/main/Figures/fig.2_mean_min_temp_by_month_plot.png)
+
+- Identify the coldest and hottest months in Curiosity's location:
+```
+mintemp=avg_min_temp_df['mean_min_temp'].min()
+maxtemp=avg_min_temp_df['mean_min_temp'].max()
+
+min_temp_df = avg_min_temp_df[avg_min_temp_df['mean_min_temp']==mintemp]
+max_temp_df = avg_min_temp_df[avg_min_temp_df['mean_min_temp']==maxtemp]
+print('Minimum Mean Temp Month:')
+print(min_temp_df)
+print('------------------------')
+print('Maximum Mean Temp Month:')
+print(max_temp_df)
+```
+OUTPUT:
+</br>
+![fig.3_hot_cold_mean_temp_month](https://github.com/zmoloci/Challenge11-WebScraping/blob/main/Figures/fig.3_hot_cold_mean_temp_month.png)
+
+4. Which months have the lowest and the highest atmospheric pressure on Mars?</br> To answer this question:
 - Find the average the daily atmospheric pressure of all the months.
-- Plot the results as a bar chart.
-6. About how many terrestrial (Earth) days exist in a Martian year? </br>To answer this question:
-- Consider how many days elapse on Earth in the time that Mars circles the Sun once.
-- Visually estimate the result by plotting the daily minimum temperature.
+```
+avg_pressure_df = table_df.groupby(['month']).agg(mean_pressure = ('pressure','mean'))
+avg_pressure_df
+```
+OUTPUT:
+</br>
+![fig.5_mean_pressure_by_month](https://github.com/zmoloci/Challenge11-WebScraping/blob/main/Figures/fig.5_mean_pressure_by_month.png)
 
+
+- Plot the results as a bar chart.
+
+```
+ax = avg_pressure_df.plot.bar(y='mean_pressure')
+ax.set_ylabel('mean pressure')
+ax.set_title('Mean Mars Pressure by Month')
+```
+OUTPUT:
+</br>
+![fig.4_mean_pressure_by_month_plot](https://github.com/zmoloci/Challenge11-WebScraping/blob/main/Figures/fig.4_mean_pressure_by_month_plot.png)
+
+
+5. About how many terrestrial (Earth) days exist in a Martian year? </br>To answer this question:
+- Consider how many days elapse on Earth in the time that Mars circles the Sun once.
+```
+
+for i in range(len(table_df)):
+    if table_df.iloc[i,4] == 1:
+        terr_day_one = table_df.iloc[i,1]
+        mars_day_one = i
+        break
+
+for j in range(mars_day_one,len(table_df)):
+    if table_df.iloc[j,4] == 12:
+        mars_12mo_day = j
+        break    
+        
+for k in range(mars_12mo_day,len(table_df)):
+    if table_df.iloc[k,4] == 1:
+        terr_day_x = table_df.iloc[k,1]
+        break
+    
+terr_days_in_mar_yr = terr_day_x - terr_day_one
+terr_days_in_mar_yr.days
+
+
+print(f'Approximately {terr_days_in_mar_yr} elapse on Earth in 1 year on Mars')
+
+```
+- Visually estimate the result by plotting the daily minimum temperature.
+```
+table_df_one_mar_yr = table_df.loc[i:k]
+
+x = table_df_one_mar_yr['sol']
+y = table_df_one_mar_yr['min_temp']
+
+ax=plt.subplot(1,1,1)
+ax.plot(x,y)
+ax.set_ylabel('daily min_temp')
+ax.set_xlabel('sol')
+ax.set_title('Mars Daily Minimum Temp for 1 Year')
+
+ax.set_xticks(x[::25])
+ax.set_xticklabels(x[::25],rotation=90)
+
+
+```
+OUTPUT:
+</br>
+![fig.6_min_temp_1_year.png](https://github.com/zmoloci/Challenge11-WebScraping/blob/main/Figures/fig.6_min_temp_1_year.png)
+
+### Step 6: Save the Data
+</br>
+
+Export dataframe to a [CSV file](https://github.com/zmoloci/Challenge11-WebScraping/blob/main/mars_output.csv) and quit the browser.
+
+```
+table_df.to_csv('mars_output.csv')
+
+browser.quit()
+
+```
